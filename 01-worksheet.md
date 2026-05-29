@@ -63,11 +63,11 @@ Hãy sử dụng **4 Lenses** dưới đây để quét qua hoạt động vận
 ### 📝 List bài toán của tôi:
 | # | Subsidiary (VinFast/Xanh SM...) | Lens | Mô tả ngắn bài toán |
 |---|----------------------------------|------|---------------------|
-| 1 | | | |
-| 2 | | | |
-| 3 | | | |
-| 4 | | | |
-| 5 | | | |
+| 1 | Vin Bus | Repetitive | Điều phối xe/tài xế theo thời gian thực dựa trên dữ liệu nhu cầu khách hàng cho mỗi tuyến |
+| 2 | VinFast | Stakeholder Pain | Khó khăn tìm trạm đổi pin xe máy điện: AI gợi ý trạm đổi phù hợp hiện tại và chủ động đề xuất trạm tối ưu dựa trên lượng pin thực tế và lộ trình. |
+| 3 | VinFast | Repetitive | Đối soát hóa đơn sạc, nhật ký xe và giao dịch thanh toán để phát hiện sai lệch, thiếu chứng từ hoặc trùng lặp nhanh hơn. |
+| 4 | Vinhomes | AI-upgrade | Tự động thu thập review 1-sao từ cộng đồng cư dân, đồng thời gắn nhãn mức độ khẩn cấp để ưu tiên xử lý. |
+| 5 | Vinmec | Stakeholder Pain | Trích xuất và tóm tắt hồ sơ bệnh án để bác sĩ tra cứu nhanh thông tin liên quan trước khi khám, giảm thời gian đọc hồ sơ thủ công. |
 
 ---
 
@@ -76,26 +76,58 @@ Hãy sử dụng **4 Lenses** dưới đây để quét qua hoạt động vận
 Chọn **top 3 bài toán** từ danh sách trên và hoàn thiện **3 Quick Problem Cards** dưới đây (10 phút/card).
 
 ```
+### Completed Quick Problem Cards (top 3)
+
 ┌─────────────────────────────────────────────────────────────┐
-│ QUICK PROBLEM CARD #___                                     │
-│                                                             │
-│ Bài toán (1 câu): ________________________________________  │
-│ Công ty thành viên: [ ] VinFast  [ ] Xanh SM  [ ] Vinhomes  │
-│                     [ ] Vinmec   [ ] Khác (Ghi rõ)________  │
-│                                                             │
-│ Ai đang đau (Actor)? ______________________________________ │
-│                                                             │
-│ Workflow thủ công hiện tại (3-5 bước):                      │
-│   1. ___ ──> 2. ___ ──> 3. ___ ──> 4. ___                   │
-│                                                             │
-│ Bước nào tốn thời gian/lỗi nhất? ___ (⏱ ___ phút/lượt)      │
-│ AI có thể nhảy vào hỗ trợ ở bước nào? _____________________ │
-│                                                             │
-│ Đo thành công bằng gì (Metric có số)? ______________________ │
-│   VD: "Giảm thời gian soạn phản hồi từ 10 min ──> under 2 min"│
-│                                                             │
-│ Quick Architecture: [ ] No AI  [ ] Rule  [ ] LLM  [ ] Agent │
+│ QUICK PROBLEM CARD #1                                         │
+│                                                               │
+│ Bài toán (1 câu): Tối ưu điều phối tuyến/xe (Vin Bus) để giảm thao tác gán chuyến thủ công và thời gian chờ khách. │
+│ Công ty thành viên: Vin Bus                                    │
+│ Ai đang đau (Actor)? Ops/Dispatcher phụ trách điều phối tuyến và giám sát vận hành. │
+│ Workflow thủ công hiện tại (3-5 bước):                        │
+│   1. Thu thập dữ liệu cầu theo tuyến (logs, lượt đặt) ──> 2. So sánh nguồn lực (số xe, tài xế, ca trực) ──> 3. Gán chuyến/tuyến thủ công vào lịch ──> 4. Giám sát và sửa tay khi có ngoại lệ │
+│ Bước nào tốn thời gian/lỗi nhất? Bước 3: gán chuyến và cân đối nguồn lực (⏱ ~8–15 phút/phiên điều chỉnh) │
+│ AI có thể nhảy vào hỗ trợ ở bước nào? Bước 2–3: dự đoán cầu, đề xuất phân bổ tối ưu và đưa ra danh sách gợi ý để ops chỉ cần phê duyệt. │
+│ Đo thành công bằng gì (Metric có số)?                         │
+│   - Giảm thời gian gán chuyến trung bình từ 12 phút → ≤3 phút (−75%). │
+│   - Tăng tỷ lệ đáp ứng nhu cầu tuyến (fill-rate) +4–6%.       │
+│ Quick Architecture: [ ] No AI  [ ] Rule  [ ] LLM  [x] Agent    │
 └─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ QUICK PROBLEM CARD #2                                         │
+│                                                               │
+│ Bài toán (1 câu): Khách đi xe máy điện VinFast gặp khó khăn tìm trạm đổi pin; AI gợi ý trạm phù hợp hiện tại và chủ động đề xuất trạm tối ưu dựa trên lượng pin thực tế và lộ trình. │
+│ Công ty thành viên: VinFast                                   │
+│ Ai đang đau (Actor)? Khách hàng lái xe máy điện VinFast và đội ngũ vận hành trạm. │
+│ Workflow thủ công hiện tại (3-5 bước):                        │
+│   1. Khách hàng nhận thấy xe máy điện sắp hết pin ──> 2. Phải dừng xe bên đường tra cứu bản đồ trạm pin trên app ──> 3. Tự ước tính quãng đường còn đi được và khả năng đáp ứng pin sạc đầy của trạm ──> 4. Di chuyển tới trạm đổi pin │
+│ Bước nào tốn thời gian/lỗi nhất? Bước 2-3: Dừng xe tra cứu và tự tính toán/dự báo trạm pin tối ưu (⏱ ~5–8 phút/lần) │
+│ AI có thể nhảy vào hỗ trợ ở bước nào? Giám sát dung lượng pin thời gian thực và tự động gợi ý trạm đổi pin phù hợp; chủ động đề xuất trạm tối ưu dựa trên lộ trình đi tiếp. │
+│ Đo thành công bằng gì (Metric có số)?                         │
+│   - Giảm tỷ lệ xe máy điện hết pin giữa đường xuống <0.05%.   │
+│   - Giảm thời gian tìm kiếm và chọn trạm đổi pin từ 8 phút → <15 giây (chủ động đề xuất trên app/màn hình xe). │
+│   - Tăng chỉ số hài lòng CSAT về dịch vụ đổi pin lên >95%.    │
+│ Quick Architecture: [ ] No AI  [ ] Rule  [ ] LLM  [x] Agent    │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│ QUICK PROBLEM CARD #3                                         │
+│                                                               │
+│ Bài toán (1 câu): Tự động đối soát hóa đơn sạc và giao dịch thanh toán VinFast để phát hiện sai lệch/tính phí trùng lặp nhanh hơn. │
+│ Công ty thành viên: VinFast                                   │
+│ Ai đang đau (Actor)? Nhân viên kế toán/finance và ops quản lý trạm sạc. │
+│ Workflow thủ công hiện tại (3-5 bước):                        │
+│   1. Gom file hóa đơn và logs giao dịch ──> 2. So khớp hóa đơn vs. logs sử dụng (mã xe, thời gian, số tiền) ──> 3. Đánh dấu bất thường, mở ticket điều tra ──> 4. Hoàn thiện đối soát và booking ghi sổ │
+│ Bước nào tốn thời gian/lỗi nhất? Bước 2–3: khớp và xử lý ngoại lệ (⏱ ~20–90 phút/case tùy phức tạp) │
+│ AI có thể nhảy vào hỗ trợ ở bước nào? Trích xuất thông tin từ hóa đơn (OCR + NER), tự động so khớp với logs và gắn nhãn anomalies để giảm thao tác thủ công. │
+│ Đo thành công bằng gì (Metric có số)?                         │
+│   - Tự động khớp 90% giao dịch không cần can thiệp người.     │
+│   - Giảm thời gian xử lý exception trung bình từ 45 phút → ≤12 phút. │
+│   - Giảm lỗi đối soát gây trễ báo cáo xuống <1%.               │
+│ Quick Architecture: [ ] No AI  [x] Rule  [ ] LLM  [ ] Agent    │
+└─────────────────────────────────────────────────────────────┘
+
 ```
 
 > [!TIP]
