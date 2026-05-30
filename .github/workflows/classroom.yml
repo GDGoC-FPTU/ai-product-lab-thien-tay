@@ -10,9 +10,21 @@ jobs:
   run-autograding-tests:
     runs-on: ubuntu-latest
     if: github.actor != 'github-classroom[bot]'
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    - name: Prepare API key for autograder steps
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: |
+        if [ -z "$GEMINI_API_KEY" ]; then
+          echo "::error::Repository secret GEMINI_API_KEY is missing. Add it under Settings → Secrets and variables → Actions."
+          exit 1
+        fi
+        printf 'export GEMINI_API_KEY=%q\n' "$GEMINI_API_KEY" > ci-env.sh
+        chmod +x ci-env.sh
     - name: Problem Scan
       id: problem-scan
       uses: classroom-resources/autograding-command-grader@v1
@@ -81,8 +93,8 @@ jobs:
       uses: classroom-resources/autograding-command-grader@v1
       with:
         test-name: Prototype Script
-        setup-command: ''
-        command: python autograder/autograder.py --check-code-4
+        setup-command: pip install -r requirements.txt && . ./ci-env.sh
+        command: . ./ci-env.sh && python autograder/autograder.py --check-code-4
         timeout: 10
         max-score: 10
     - name: Safety Verification
@@ -90,8 +102,8 @@ jobs:
       uses: classroom-resources/autograding-command-grader@v1
       with:
         test-name: Safety Verification
-        setup-command: ''
-        command: python autograder/autograder.py --check-code-5
+        setup-command: pip install -r requirements.txt && . ./ci-env.sh
+        command: . ./ci-env.sh && python autograder/autograder.py --check-code-5
         timeout: 10
         max-score: 10
     - name: Autograding Reporter
